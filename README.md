@@ -9,7 +9,7 @@
 
 2. 调试方式
 ```sh
-# 输入用户文件夹路径，以及比赛最长用时
+# 输入用户文件夹路径，以及比赛id，（本比赛最长用时模）
 python3 main.py /home/unbuntu/catkin_ws 300
 # 结果:dict type
 # {"result":160.14292,"error":False,"error_description":""}

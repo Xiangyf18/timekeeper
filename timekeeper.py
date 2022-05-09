@@ -57,19 +57,18 @@ class ROSTask:
         self.dir_path = workspace_dir_path
 
         self.killed = False
-        self.error_return = None # 遇到错误，意外退出
+        self.error_return = None
 
-        #重新编译文件夹
         cmd="cd "+self.dir_path+" && rm -rf build/ devel/ && catkin_make"
         os.popen(cmd)  
 
-        #执行
+        
         exec_cmd = "source "+self.dir_path+"/devel/setup.bash && roslaunch nicsrobot_line_follower nicsrobot_line_follower.launch"
         self.ros_driver_process = subprocess.Popen(["/bin/bash", "-c", exec_cmd],
                                                    shell=False, stdin=subprocess.PIPE,
                                                    stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
                                                    encoding="utf-8", preexec_fn=os.setsid)  # 创建进程组
-        # 检测意外错误
+        
         self.wait_exit_thread = threading.Thread(target=self.exit_info, daemon=True)
         self.wait_exit_thread.start()
 
