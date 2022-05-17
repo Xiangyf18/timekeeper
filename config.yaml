@@ -1,0 +1,17 @@
+# for racetracks data
+racetrack:
+  workspace_path: "~/catkin_ws"
+  0:
+    cmd: "roslaunch nics_bringup nics_gazebo_simple.launch"
+    track_width: 1.1
+    init_pose: 
+      x: 0.45
+      y: -1.79
+    half_pose: 
+      x: -0.35
+      y: 0
+
+# for user test config
+user_cmd: "roslaunch nicsrobot_line_follower nicsrobot_line_follower.launch"
+max_seconds: 300
+rebuild_workspace: false

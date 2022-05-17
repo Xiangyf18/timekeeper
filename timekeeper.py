@@ -8,91 +8,150 @@ from nav_msgs.msg import Odometry
 import os
 import subprocess
 import threading
+import yaml
+import math
+
+# for config
+config_url = os.path.dirname(os.path.realpath(__file__))+"/config.yaml"
+with open(str(config_url), mode='r', encoding='utf-8') as f:
+    config_data: dict = yaml.load(f, Loader=yaml.FullLoader)
 
 
 class JudgeNode:
-    def __init__(self,max_time):
-        self.max_time=max_time
+    def __init__(self, race_id):
+        # static data
+        self.max_seconds = config_data["max_seconds"]
+        self.init_pose = config_data["racetrack"][race_id]["init_pose"]
+        self.half_pose = config_data["racetrack"][race_id]["half_pose"]
+        self.track_width = config_data["racetrack"][race_id]["track_width"]
 
-        # for ros init 
+        # for ros init
         rospy.init_node('judge_node_', anonymous=True)
         self.rate = rospy.Rate(10)
         self.JudgeInfoSub = rospy.Subscriber('/AKM_1/odom', Odometry, self.JudgeCallback)
 
         # for position init
-        self.pose=[0.0,0.0]
-        self.half_check=False 
-    
-    def main_task(self)->None:
-        self.start_time=rospy.get_time()
+        self.pose = None
+        self.pose_first = None
+        self.half_check = False
+        self.start_check = False
+        self.finish_seconds = None
+
+        self._main_thread = threading.Thread(target=self.main_task, daemon=True)
+        self._main_thread.start()
+
+    def main_task(self) -> None:
+        self.start_time = rospy.get_time()
         while not rospy.is_shutdown():
-            self.time_now=rospy.get_time()
-            x=self.pose[0]
-            y=self.pose[1]
-            
-            # 确认跑了半圈 TODO
-            if abs(x-0.625)<=0.05 and abs(y+1.75)<1.2:
-                self.half_check=True
+            self.time_now = rospy.get_time()
+            x = self.pose[0]
+            y = self.pose[1]
 
-            # 确认到达初始点
-            if self.half_check==True and abs(x-0.625)<=0.05 and abs(y+1.75)<1.2:
-                self.finish_time=rospy.get_time()
-                return float(self.finish_time-self.start_time)
-            
-            # 超过最长用时
-            if (self.time_now-self.start_time)>self.max_time:
-                return float(self.max_time)
-            
+            if self.start_check and abs(x-self.half_pose["x"]) <= 0.2 \
+                    and abs(y-self.half_pose["y"]) < self.track_width:
+                self.half_check = True
+
+            if self.half_check == True and abs(x-self.init_pose["x"]) <= 0.2 \
+                    and abs(y-self.init_pose["y"]) < self.track_width:
+                self.finish_time = rospy.get_time()
+                self.finish_seconds = float(self.finish_time-self.start_time)
+                return
+
+            if (self.time_now-self.start_time) > self.max_seconds:
+                return float(self.max_seconds)
+
             self.rate.sleep()
-            
+
+    def JudgeCallback(self, msg: Odometry):
+        new_pose = [msg.pose.pose.position.x, msg.pose.pose.position.y]
+        self.pose = new_pose
+        if self.pose_first == None:
+            self.pose_first = new_pose
+        if math.sqrt((self.pose[0]-self.pose_first[0])**2+(self.pose[1]-self.pose_first[0])**2) > 0.2:
+            self.start_check = True
 
 
-    def JudgeCallback(self,msg:Odometry):
-        self.pose[0]=msg.pose.pose.position.x
-        self.pose[1]=msg.pose.pose.position.y
-
-
-class ROSTask:
-    def __init__(self, workspace_dir_path:str):
-        self.dir_path = workspace_dir_path
+class UserTask:
+    def __init__(self, workspace_dir_path: str):
+        self.workspace_dir_path = workspace_dir_path
+        self.user_cmd = config_data["user_cmd"]
 
         self.killed = False
         self.error_return = None
 
-        cmd="cd "+self.dir_path+" && rm -rf build/ devel/ && catkin_make"
-        os.popen(cmd)  
+        # rebuild workspace
+        if config_data["rebuild_workspace"] == True:
+            cmd = "cd "+self.workspace_dir_path+" && rm -rf build/ devel/ && catkin_make"
+            os.popen(cmd)
 
-        
-        exec_cmd = "source "+self.dir_path+"/devel/setup.bash && roslaunch nicsrobot_line_follower nicsrobot_line_follower.launch"
+        # exec user codes
+        exec_cmd = "source "+self.workspace_dir_path + \
+            "/devel/setup.bash && " + self.user_cmd
         self.ros_driver_process = subprocess.Popen(["/bin/bash", "-c", exec_cmd],
                                                    shell=False, stdin=subprocess.PIPE,
                                                    stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
                                                    encoding="utf-8", preexec_fn=os.setsid)  # 创建进程组
-        
-        self.wait_exit_thread = threading.Thread(target=self.exit_info, daemon=True)
+
+        self.wait_exit_thread = threading.Thread(target=self._exit_info, daemon=True)
         self.wait_exit_thread.start()
 
-    def exit_info(self):
+    def _exit_info(self):
         return_data = self.ros_driver_process.communicate(input=None)
         if self.killed == False:
-            self.error_return=return_data
-            print(
-                f'[DEBUG]: ROSDriver process {self.ros_domain_id} unexpectedly exit with data:: {return_data}')
+            self.error_return = '  UserTask process unexpectedly exit with data:: '+return_data
+            self.killed = True
+            print(f'[ERROR]: {self.error_return}')
 
     def kill_process(self):
         try:
             if self.killed == False:
+                self.killed = True
                 os.killpg(os.getpgid(self.ros_driver_process.pid), 9)
                 self.ros_driver_process.wait()
-                self.killed = True
                 pass
         except Exception as e:
-            print(f'[ERROR]: raise exception \'{e}\' in function \'kill_process\'')
+            print(f'[WARNING]: raise exception \'{e}\' in UserTask\'s function:  \'kill_process\'')
 
     def __del__(self):
         self.kill_process()
 
 
-class GazeboTask:
-    TODO:
-    pass
+class SimulatorTask:
+    def __init__(self, race_id) -> None:
+        self.cmd = config_data["racetrack"][race_id]["cmd"]
+        self.workspace_dir_path = config_data["racetrack"]["workspace_path"]
+
+        self.killed = False
+        self.error_return = None
+
+        # exec  simulator
+        exec_cmd = "source "+self.workspace_dir_path + \
+            "/devel/setup.bash && " + self.cmd
+        self.ros_driver_process = subprocess.Popen(["/bin/bash", "-c", exec_cmd],
+                                                   shell=False, stdin=subprocess.PIPE,
+                                                   stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
+                                                   encoding="utf-8", preexec_fn=os.setsid)  # 创建进程组
+
+        self.wait_exit_thread = threading.Thread(target=self._exit_info, daemon=True)
+        self.wait_exit_thread.start()
+
+    def _exit_info(self):
+        return_data = self.ros_driver_process.communicate(input=None)
+        if self.killed == False:
+            self.error_return = '  SimulatorTask process unexpectedly exit with data:: '+return_data
+            self.killed = True
+            print(f'[ERROR]: {self.error_return}')
+
+    def kill_process(self):
+        try:
+            if self.killed == False:
+                self.killed = True
+                os.killpg(os.getpgid(self.ros_driver_process.pid), 9)
+                self.ros_driver_process.wait()
+                pass
+        except Exception as e:
+            print(
+                f'[WARNING]: raise exception \'{e}\' in SimulatorTask\'s function:  \'kill_process\'')
+
+    def __del__(self):
+        self.kill_process()

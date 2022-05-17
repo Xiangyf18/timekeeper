@@ -1,29 +1,49 @@
 #!/usr/bin/python3
 # -*- coding:utf-8 -*-
+from .timekeeper import JudgeNode, UserTask, SimulatorTask
+import argparse
+import sys
+import time
 
 
-TODO:
-# timekeeper脚本中
-# 增加gazebo的子进程调用
-# judgeNode 以小车动了为起点开始
-# judgeNode 确认跑了半圈在哪里pose
-
-# 本脚本
-# 子进程打开gazebo，注意接受回调错误
-# 子线程打开timekeeper
-# 子进程打开rostask，注意接受回调错误
-# 持续等待，timekeeper 结果更新了/另外两个出现意外结束错误（非None）
-# 返回结果：dict
+def parse_args(args, parser: argparse.ArgumentParser):
+    parser.add_argument('--id', type=str)
+    parser.add_argument('--dir', type=str)
+    all_args = parser.parse_known_args(args)[0]
+    return all_args
 
 
-# 佳昊的仓库
-# 重新写计时函数
+def main(args):
+    parser = argparse.ArgumentParser()
+    all_args = parse_args(args, parser)
 
-# 验证：
-# localhost设置会不会影响用户使用（bashrc怎么写的我有些忘了）
-# 无错误时，计时符合预计
-# 有错误时，错误输出符合预计
+    sim_task = SimulatorTask(all_args.id)
+    judge_task = JudgeNode(all_args.id)
+    user_task = UserTask(all_args.dir)
 
-#TODO:
-# 高级障碍赛的初始位置不提供
-# 需要输入比赛id，最长用时就由我默认了
+    result: dict = {"seconds": 0.0,
+                    "error": False,
+                    "error_description": ""}
+
+    try:
+        while True:
+            if judge_task.finish_seconds != None:
+                result["seconds"] = judge_task.finish_seconds
+                break
+
+            if sim_task.error_return or user_task.error_return:
+                result["seconds"] = judge_task.max_seconds
+                result["error"] = True
+                result["error_description"] += sim_task.error_return if sim_task.error_return != None else ""
+                result["error_description"] += user_task.error_return if user_task.error_return != None else ""
+
+            time.sleep(0.1)
+
+    finally:
+        sim_task.kill_process()
+        user_task.kill_process()
+        print(result)
+
+
+if __name__ == '__main__':
+    main(sys.argv[1:])
