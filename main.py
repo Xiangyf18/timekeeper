@@ -20,7 +20,8 @@ def main(args):
     all_args = parse_args(args, parser)
 
     sim_task = SimulatorTask(all_args.id)
-    time.sleep(2)
+    print("wait init for 5 seconds")
+    time.sleep(5)
     judge_task = JudgeNode(all_args.id)
     user_task = UserTask(all_args.dir)
 
