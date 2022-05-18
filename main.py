@@ -44,7 +44,7 @@ def main(args):
             time.sleep(0.1)
 
     finally:
-        os.popen("ps -ux|grep ros |grep -v ros |cut -c 9-16 |xargs kill -9 ")
+        judge_task.kill_ros_process()
         print(result)
 
 
