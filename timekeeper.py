@@ -71,12 +71,7 @@ class JudgeNode:
             self.start_check = True
 
     def kill_ros_process(self):
-        self.ros_kill_process = subprocess.Popen(["/bin/bash", "-c", "ps -ux|grep ros |grep -v ros |cut -c 9-16 |xargs kill -9 "],
-                                                 shell=True, stdin=subprocess.PIPE,
-                                                 stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
-                                                 encoding="utf-8", preexec_fn=os.setsid)  # 创建进程组
-        self.ros_kill_process.communicate()
-        os.popen()
+        os.system(dir_path+"/kill.sh")
 
 
 class UserTask:
