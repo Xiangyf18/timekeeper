@@ -58,7 +58,8 @@ class JudgeNode:
                 return
 
             if (self.time_now-self.start_time) > self.max_seconds:
-                return float(self.max_seconds)
+                self.finish_seconds = float(self.max_seconds)
+                return
 
             self.rate.sleep()
 
