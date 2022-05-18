@@ -10,6 +10,7 @@ import subprocess
 import threading
 import yaml
 import math
+import time
 
 # for config
 dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -38,10 +39,10 @@ class JudgeNode:
         self.start_check = False
         self.finish_seconds = None
 
-        self._main_thread = threading.Thread(target=self.main_task, daemon=True)
+        self._main_thread = threading.Thread(target=self._main_task, daemon=True)
         self._main_thread.start()
 
-    def main_task(self) -> None:
+    def _main_task(self) -> None:
         self.start_time = rospy.get_time()
         while not rospy.is_shutdown():
             self.time_now = rospy.get_time()
@@ -105,7 +106,6 @@ class UserTask:
         try:
             if self.killed == False:
                 self.killed = True
-                self.ros_driver_process.terminate()
                 os.killpg(os.getpgid(self.ros_driver_process.pid), 9)
                 self.ros_driver_process.wait()
                 pass
@@ -146,7 +146,6 @@ class SimulatorTask:
         try:
             if self.killed == False:
                 self.killed = True
-                self.ros_driver_process.terminate()
                 os.killpg(os.getpgid(self.ros_driver_process.pid), 9)
                 self.ros_driver_process.wait()
                 pass
