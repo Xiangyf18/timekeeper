@@ -103,7 +103,7 @@ class UserTask:
             self.error_return = '  UserTask process unexpectedly exit with data:: '
             self.error_return += (err if err is not None else "")
             self.killed = True
-            print(f'[ERROR]: {self.error_return}')
+            # print(f'[ERROR]: {self.error_return}')
 
     def kill_process(self):
         try:
@@ -143,7 +143,7 @@ class SimulatorTask:
             self.error_return = '  SimulatorTask process unexpectedly exit with data:: '
             self.error_return += (err if err is not None else "")
             self.killed = True
-            print(f'[ERROR]: {self.error_return}')
+            # print(f'[ERROR]: {self.error_return}')
 
     def kill_process(self):
         try:
