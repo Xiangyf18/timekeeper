@@ -1,13 +1,14 @@
 #!/usr/bin/python3
 # -*- coding:utf-8 -*-
-from .timekeeper import JudgeNode, UserTask, SimulatorTask
+from timekeeper import JudgeNode, UserTask, SimulatorTask
 import argparse
 import sys
 import time
+import rospy
 
 
 def parse_args(args, parser: argparse.ArgumentParser):
-    parser.add_argument('--id', type=str)
+    parser.add_argument('--id', type=int)
     parser.add_argument('--dir', type=str)
     all_args = parser.parse_known_args(args)[0]
     return all_args
@@ -26,7 +27,7 @@ def main(args):
                     "error_description": ""}
 
     try:
-        while True:
+        while not rospy.is_shutdown():
             if judge_task.finish_seconds != None:
                 result["seconds"] = judge_task.finish_seconds
                 break
@@ -36,6 +37,7 @@ def main(args):
                 result["error"] = True
                 result["error_description"] += sim_task.error_return if sim_task.error_return != None else ""
                 result["error_description"] += user_task.error_return if user_task.error_return != None else ""
+                break
 
             time.sleep(0.1)
 
