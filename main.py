@@ -40,8 +40,8 @@ def main(args):
             time.sleep(0.1)
 
     finally:
-        sim_task.kill_process()
         user_task.kill_process()
+        sim_task.kill_process()
         print(result)
 
 
