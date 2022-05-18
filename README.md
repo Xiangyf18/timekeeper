@@ -1,17 +1,15 @@
 # Timekeeper
 
-0.安装
+0. 安装与注意事项
 ```
 python3 -m pip install rospkg catkin_tools
 ```
-
 
 1. 说明
 - 计时基于 `ros time`,与仿真器完全一致,而非真实时间
 - 相关配置请见 `config.yaml`
 
 2. 调试方式
-最好确保roscore已经打开
 ```sh
 # 输入赛道序号和用户文件夹路径
 python3 main.py --id 0  --dir /home/unbuntu/catkin_ws

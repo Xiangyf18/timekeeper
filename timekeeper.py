@@ -84,8 +84,7 @@ class UserTask:
             os.popen(cmd)
 
         # exec user codes
-        exec_cmd = f"source {self.workspace_dir_path}/devel/setup.bash && " + \
-            dir_path+"/task.sh " + self.user_cmd
+        exec_cmd = f"source {self.workspace_dir_path}/devel/setup.bash && {self.user_cmd}"
         self.ros_driver_process = subprocess.Popen(["/bin/bash", "-c", exec_cmd],
                                                    shell=False, stdin=subprocess.PIPE,
                                                    stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
@@ -106,6 +105,7 @@ class UserTask:
         try:
             if self.killed == False:
                 self.killed = True
+                self.ros_driver_process.terminate()
                 os.killpg(os.getpgid(self.ros_driver_process.pid), 9)
                 self.ros_driver_process.wait()
                 pass
@@ -125,8 +125,7 @@ class SimulatorTask:
         self.error_return = None
 
         # exec  simulator
-        exec_cmd = f"source {self.workspace_dir_path}/devel/setup.bash && " + \
-            dir_path+"/task.sh " + self.cmd
+        exec_cmd = f"source {self.workspace_dir_path}/devel/setup.bash && {self.cmd}"
         self.ros_driver_process = subprocess.Popen(["/bin/bash", "-c", exec_cmd],
                                                    shell=False, stdin=subprocess.PIPE,
                                                    stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
@@ -147,6 +146,7 @@ class SimulatorTask:
         try:
             if self.killed == False:
                 self.killed = True
+                self.ros_driver_process.terminate()
                 os.killpg(os.getpgid(self.ros_driver_process.pid), 9)
                 self.ros_driver_process.wait()
                 pass
