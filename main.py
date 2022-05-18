@@ -20,7 +20,7 @@ def main(args):
     all_args = parse_args(args, parser)
 
     sim_task = SimulatorTask(all_args.id)
-    time.sleep(1)
+    time.sleep(2)
     judge_task = JudgeNode(all_args.id)
     user_task = UserTask(all_args.dir)
 
@@ -44,8 +44,6 @@ def main(args):
             time.sleep(0.1)
 
     finally:
-        user_task.kill_process()
-        sim_task.kill_process()
         os.popen("ps -ux|grep ros |grep -v ros |cut -c 9-16 |xargs kill -9 ")
         print(result)
 

@@ -70,6 +70,14 @@ class JudgeNode:
         if math.sqrt((self.pose[0]-self.pose_first[0])**2+(self.pose[1]-self.pose_first[0])**2) > 0.2:
             self.start_check = True
 
+    def kill_ros_process(self):
+        self.ros_kill_process = subprocess.Popen(["/bin/bash", "-c", "ps -ux|grep ros |grep -v ros |cut -c 9-16 |xargs kill -9 "],
+                                                 shell=True, stdin=subprocess.PIPE,
+                                                 stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
+                                                 encoding="utf-8", preexec_fn=os.setsid)  # 创建进程组
+        self.ros_kill_process.communicate()
+        os.popen()
+
 
 class UserTask:
     def __init__(self, workspace_dir_path: str):
