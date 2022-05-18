@@ -12,7 +12,8 @@ import yaml
 import math
 
 # for config
-config_url = os.path.dirname(os.path.realpath(__file__))+"/config.yaml"
+dir_path = os.path.dirname(os.path.realpath(__file__))
+config_url = dir_path+"/config.yaml"
 with open(str(config_url), mode='r', encoding='utf-8') as f:
     config_data: dict = yaml.load(f, Loader=yaml.FullLoader)
 
@@ -83,8 +84,7 @@ class UserTask:
             os.popen(cmd)
 
         # exec user codes
-        exec_cmd = "source "+self.workspace_dir_path + \
-            "/devel/setup.bash && " + self.user_cmd
+        exec_cmd = dir_path+"/task.sh "+self.workspace_dir_path + " " + self.user_cmd
         self.ros_driver_process = subprocess.Popen(["/bin/bash", "-c", exec_cmd],
                                                    shell=False, stdin=subprocess.PIPE,
                                                    stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
@@ -124,8 +124,7 @@ class SimulatorTask:
         self.error_return = None
 
         # exec  simulator
-        exec_cmd = "source "+self.workspace_dir_path + \
-            "/devel/setup.bash && " + self.cmd
+        exec_cmd = dir_path+"/task.sh "+self.workspace_dir_path + " " + self.cmd
         self.ros_driver_process = subprocess.Popen(["/bin/bash", "-c", exec_cmd],
                                                    shell=False, stdin=subprocess.PIPE,
                                                    stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,

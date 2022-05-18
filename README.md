@@ -1,5 +1,10 @@
 # Timekeeper
 
+0.安装
+```
+python3 -m pip install rospkg catkin_tools
+```
+
 
 1. 说明
 - 计时基于 `ros time`,与仿真器完全一致,而非真实时间
