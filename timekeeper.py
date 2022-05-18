@@ -84,7 +84,8 @@ class UserTask:
             os.popen(cmd)
 
         # exec user codes
-        exec_cmd = dir_path+"/task.sh "+self.workspace_dir_path + " " + self.user_cmd
+        exec_cmd = f"source {self.workspace_dir_path}/devel/setup.bash && " + \
+            dir_path+"/task.sh " + self.user_cmd
         self.ros_driver_process = subprocess.Popen(["/bin/bash", "-c", exec_cmd],
                                                    shell=False, stdin=subprocess.PIPE,
                                                    stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
@@ -124,7 +125,8 @@ class SimulatorTask:
         self.error_return = None
 
         # exec  simulator
-        exec_cmd = dir_path+"/task.sh "+self.workspace_dir_path + " " + self.cmd
+        exec_cmd = f"source {self.workspace_dir_path}/devel/setup.bash && " + \
+            dir_path+"/task.sh " + self.cmd
         self.ros_driver_process = subprocess.Popen(["/bin/bash", "-c", exec_cmd],
                                                    shell=False, stdin=subprocess.PIPE,
                                                    stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
