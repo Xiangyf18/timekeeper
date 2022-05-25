@@ -54,7 +54,7 @@ def main(user_workspace_dir: str, trace_id: int = 0):
 app = FastAPI()
 
 
-@app.get("/api/timekeeper")
+@app.post("/api/timekeeper")
 async def home(request: Request):
     data = await request.json()
     result = main(user_workspace_dir=data["actualPath"], trace_id=0)

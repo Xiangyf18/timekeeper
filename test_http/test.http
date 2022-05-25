@@ -4,7 +4,7 @@
 @userName=admin
 @password=public
 
-GET http://{{hostname}}:{{port}}/api/timekeeper HTTP/1.1
+POST http://{{hostname}}:{{port}}/api/timekeeper HTTP/1.1
 Content-Type: {{Content-Type}}
 # Authorization: Basic {{userName}}:{{password}}
 
