@@ -27,6 +27,7 @@ class JudgeNode:
         self.half_pose = config_data["racetrack"][race_id]["half_pose"]
         self.track_width = config_data["racetrack"][race_id]["track_width"]
 
+    def init_task(self):
         # for ros init
         rospy.init_node('judge_node_', anonymous=True)
         self.rate = rospy.Rate(10)

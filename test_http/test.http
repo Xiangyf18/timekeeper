@@ -1,0 +1,16 @@
+@hostname=127.0.0.1
+@port=8000
+@Content-Type=application/json
+@userName=admin
+@password=public
+
+GET http://{{hostname}}:{{port}}/api/timekeeper HTTP/1.1
+Content-Type: {{Content-Type}}
+# Authorization: Basic {{userName}}:{{password}}
+
+{
+    "InterfacePath":"http://39.106.111.218:8090/school/app/upload",
+    "InterfacePathParams":{"uid":4,"type":1,"cid":1},
+    "actualPath":"E:\\www\\www\\school_backend\\48772785.py"
+}
+
