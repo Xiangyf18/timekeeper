@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 # -*- coding:utf-8 -*-
-from cv2 import trace
 from timekeeper import JudgeNode, UserTask, SimulatorTask
 import time
 import rospy
