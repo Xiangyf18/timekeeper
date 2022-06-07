@@ -91,7 +91,7 @@ class UserTask:
                 return
             root_dir = os.path.expanduser('~')+"/user_ws"
             cmd = "rm -rf "+root_dir+" && unzip -d " + root_dir+" "+self.workspace_dir_path
-            os.popen(cmd)
+            os.system(cmd)
 
             # get real user workspace
             dirs = os.listdir(root_dir)
