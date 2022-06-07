@@ -89,15 +89,16 @@ class UserTask:
             if post_name != "zip":
                 self.error_return = "UserTask process unexpectedly exit with data:: File should be a zip type!"
                 return
-            cmd = "rm -rf ~/user_ws && unzip -d ~/user_ws "+self.workspace_dir_path
+            root_dir = os.path.expanduser('~')+"/user_ws"
+            cmd = "rm -rf "+root_dir+" && unzip -d " + root_dir+" "+self.workspace_dir_path
             os.popen(cmd)
 
             # get real user workspace
-            dirs = os.listdir(os.path.expanduser('~')+"/user_ws")
+            dirs = os.listdir(root_dir)
             if len(dirs) != 1:
                 self.error_return = "UserTask process unexpectedly exit with data:: After unzip, workspace format is wrong!"
                 return
-            self.workspace_dir_path = "~/user_ws/"+str(dirs[0])
+            self.workspace_dir_path = root_dir+"/"+str(dirs[0])
 
         # rebuild workspace
         if config_data["rebuild_workspace"] == True:
