@@ -103,7 +103,7 @@ class UserTask:
         # rebuild workspace
         if config_data["rebuild_workspace"] == True:
             cmd = "cd "+self.workspace_dir_path+" && rm -rf build/ devel/ && catkin_make"
-            os.popen(cmd)
+            os.system(cmd)
 
         # exec user codes
         exec_cmd = f"source {self.workspace_dir_path}/devel/setup.bash && {self.user_cmd}"
