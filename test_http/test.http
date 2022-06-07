@@ -1,5 +1,5 @@
 @hostname=127.0.0.1
-@port=8000
+@port=18888
 @Content-Type=application/json
 @userName=admin
 @password=public
@@ -11,6 +11,6 @@ Content-Type: {{Content-Type}}
 {
     "InterfacePath":"http://39.106.111.218:8090/school/app/upload",
     "InterfacePathParams":{"uid":4,"type":1,"cid":1},
-    "actualPath":"E:\\www\\www\\school_backend\\48772785.py"
+    "actualPath":"/home/robot0/catkin_ws_test.zip"
 }
 

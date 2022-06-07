@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 # -*- coding:utf-8 -*-
+from cv2 import trace
 from timekeeper import JudgeNode, UserTask, SimulatorTask
 import time
 import rospy
@@ -58,7 +59,7 @@ app = FastAPI()
 async def home(request: Request):
     data = await request.json()
     result = main(user_workspace_dir=data["actualPath"],
-                  trace_id=int(data["InterfacePathParams"]["type"]))
+                  trace_id=int(data["InterfacePathParams"]["type"]-1))
     msg = {
         "msg": "success" if result["error"] == False else "fail",
         "code": 0 if result["error"] == False else -1,
