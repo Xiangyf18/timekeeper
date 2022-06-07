@@ -93,7 +93,7 @@ class UserTask:
             os.popen(cmd)
 
             # get real user workspace
-            dirs = os.listdir("~/user_ws")
+            dirs = os.listdir(os.path.expanduser('~')+"/user_ws")
             if len(dirs) != 1:
                 self.error_return = "UserTask process unexpectedly exit with data:: After unzip, workspace format is wrong!"
                 return
