@@ -89,7 +89,7 @@ class UserTask:
             if post_name != "zip":
                 self.error_return = "UserTask process unexpectedly exit with data:: File should be a zip type!"
                 return
-            cmd = "rm rf ~/user_ws && unzip -d ~/user_ws "+self.workspace_dir_path
+            cmd = "rm -rf ~/user_ws && unzip -d ~/user_ws "+self.workspace_dir_path
             os.popen(cmd)
 
             # get real user workspace
