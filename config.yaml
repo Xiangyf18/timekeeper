@@ -14,4 +14,5 @@ racetrack:
 # for user test config
 user_cmd: "roslaunch nicsrobot_line_follower nicsrobot_line_follower.launch"
 max_seconds: 300
-rebuild_workspace: false
+rebuild_workspace: true
+unzip_workspace: true

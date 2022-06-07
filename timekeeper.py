@@ -77,11 +77,27 @@ class JudgeNode:
 
 class UserTask:
     def __init__(self, workspace_dir_path: str):
-        self.workspace_dir_path = workspace_dir_path
-        self.user_cmd = config_data["user_cmd"]
+        self.workspace_dir_path: str = workspace_dir_path
+        self.user_cmd: str = config_data["user_cmd"]
 
         self.killed = False
         self.error_return = None
+
+        # unzip the workspace
+        if config_data["unzip_workspace"] == True:
+            post_name = self.workspace_dir_path.split(".")[-1]
+            if post_name != "zip":
+                self.error_return = "UserTask process unexpectedly exit with data:: File should be a zip type!"
+                return
+            cmd = "rm rf ~/user_ws && unzip -d ~/user_ws "+self.workspace_dir_path
+            os.popen(cmd)
+
+            # get real user workspace
+            dirs = os.listdir("~/user_ws")
+            if len(dirs) != 1:
+                self.error_return = "UserTask process unexpectedly exit with data:: After unzip, workspace format is wrong!"
+                return
+            self.workspace_dir_path = "~/user_ws/"+str(dirs[0])
 
         # rebuild workspace
         if config_data["rebuild_workspace"] == True:
@@ -122,11 +138,15 @@ class UserTask:
 
 class SimulatorTask:
     def __init__(self, race_id) -> None:
-        self.cmd = config_data["racetrack"][race_id]["cmd"]
-        self.workspace_dir_path = config_data["racetrack"]["workspace_path"]
-
         self.killed = False
         self.error_return = None
+
+        try:
+            self.cmd = config_data["racetrack"][race_id]["cmd"]
+            self.workspace_dir_path = config_data["racetrack"]["workspace_path"]
+        except:
+            self.error_return = f"SimulatorTask process unexpectedly exit with data:: Can't find config for this race track {race_id} !"
+            return
 
         # exec  simulator
         exec_cmd = f"source {self.workspace_dir_path}/devel/setup.bash && {self.cmd}"

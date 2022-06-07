@@ -16,6 +16,3 @@ python3 -m pip install rospkg catkin_tools fastapi[all]
 python3 main.py 
 ```
 随后往`http://127.0.0.1:8000/api/timekeeper`发送POST请求
-
-3. TODO
-- 目前默认测试赛道id=0，后续更改接口，请求需要带有赛道id
