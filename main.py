@@ -58,7 +58,7 @@ app = FastAPI()
 async def home(request: Request):
     data = await request.json()
     result = main(user_workspace_dir=data["actualPath"],
-                  trace_id=int(data["InterfacePathParams"]["cid"]))
+                  trace_id=int(data["InterfacePathParams"]["type"]))
     msg = {
         "msg": "success" if result["error"] == False else "fail",
         "code": 0 if result["error"] == False else -1,
@@ -68,4 +68,4 @@ async def home(request: Request):
 
 
 if __name__ == '__main__':
-    uvicorn.run(app, host='127.0.0.1', port=8000, debug=True)
+    uvicorn.run(app, host='127.0.0.1', port=18888, debug=True)
