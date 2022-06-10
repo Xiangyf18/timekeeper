@@ -29,7 +29,7 @@ def main(user_workspace_dir: str, trace_id: int = 0):
         return result
 
     judge_task.init_task()
-    user_task = UserTask(user_workspace_dir)
+    user_task = UserTask(user_workspace_dir, trace_id)
     judge_task.wait_flag = False
 
     try:

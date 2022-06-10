@@ -86,9 +86,9 @@ class JudgeNode:
 
 
 class UserTask:
-    def __init__(self, workspace_dir_path: str, race_id: int):
+    def __init__(self, workspace_dir_path: str, trace_id: int):
         self.workspace_dir_path: str = workspace_dir_path
-        self.user_cmd: str = config_data["user_cmd"][race_id]
+        self.user_cmd: str = config_data["user_cmd"][trace_id]
 
         self.killed = False
         self.error_return = None
