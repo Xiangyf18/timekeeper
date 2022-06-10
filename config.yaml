@@ -3,16 +3,37 @@ racetrack:
   workspace_path: "~/catkin_ws"
   0:
     cmd: "roslaunch nics_bringup nics_gazebo_simple.launch"
-    track_width: 1.1
+    track_width: 1.0
     init_pose: 
       x: 0.45
       y: -1.79
     half_pose: 
       x: -0.35
       y: 0
+  1:
+    cmd: "roslaunch nics_bringup nics_gazebo_block.launch"
+    track_width: 1.0
+    init_pose: 
+      x: 0.45
+      y: -1.79
+    half_pose: 
+      x: -0.35
+      y: 0
+  2:
+    cmd: "roslaunch nics_bringup nics_gazebo_actor_new.launch"
+    track_width: 1.1
+    init_pose: 
+      x: 4.4
+      y: -2.6
+    half_pose: 
+      x: 3.8
+      y: -2.6
 
 # for user test config
-user_cmd: "roslaunch nicsrobot_line_follower nicsrobot_line_follower.launch"
+user_cmd: 
+  0: "roslaunch nicsrobot_line_follower nicsrobot_line_follower.launch"
+  1: "roslaunch nicsrobot_line_follower nicsrobot_line_follower_2.launch"
+  2: "roslaunch nicsrobot_line_follower nicsrobot_line_follower_3.launch"
 max_seconds: 300
 rebuild_workspace: true
 unzip_workspace: true

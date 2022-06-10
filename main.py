@@ -12,6 +12,7 @@ def main(user_workspace_dir: str, trace_id: int = 0):
 
     result: dict = {"seconds": 0.0,
                     "error": False,
+                    "timeout": False,
                     "error_description": ""}
 
     sim_task = SimulatorTask(trace_id)
@@ -29,11 +30,13 @@ def main(user_workspace_dir: str, trace_id: int = 0):
 
     judge_task.init_task()
     user_task = UserTask(user_workspace_dir)
+    judge_task.wait_flag = False
 
     try:
         while not rospy.is_shutdown():
             if judge_task.finish_seconds != None:
                 result["seconds"] = judge_task.finish_seconds
+                result["timeout"] = judge_task.timeout
                 break
 
             if sim_task.error_return or user_task.error_return:
@@ -60,8 +63,8 @@ async def home(request: Request):
     result = main(user_workspace_dir=data["actualPath"],
                   trace_id=int(data["InterfacePathParams"]["type"]-1))
     msg = {
-        "msg": "success" if result["error"] == False else "fail",
-        "code": 0 if result["error"] == False else -1,
+        "msg": "success" if result["error"] == False else str(result["error_description"]),
+        "code": -1 if result["error"] == True else (0 if result["timeout"] == False else 666),
         "castTime": int(result["seconds"])
     }
     return msg

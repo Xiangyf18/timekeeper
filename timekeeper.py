@@ -28,10 +28,8 @@ class JudgeNode:
         self.track_width = config_data["racetrack"][race_id]["track_width"]
 
     def init_task(self):
-        # for ros init
-        rospy.init_node('judge_node_', anonymous=True)
-        self.rate = rospy.Rate(10)
-        self.JudgeInfoSub = rospy.Subscriber('/AKM_1/odom', Odometry, self.JudgeCallback)
+        self.wait_flag = True  # wait to start timekeeper
+        self.timeout = False  # check if exceed max_time
 
         # for position init
         self.pose = None
@@ -39,6 +37,11 @@ class JudgeNode:
         self.half_check = False
         self.start_check = False
         self.finish_seconds = None
+
+        # for ros init
+        rospy.init_node('judge_node_', anonymous=True)
+        self.rate = rospy.Rate(15)
+        self.JudgeInfoSub = rospy.Subscriber('/AKM_1/odom', Odometry, self.JudgeCallback)
 
         self._main_thread = threading.Thread(target=self._main_task, daemon=True)
         self._main_thread.start()
@@ -48,19 +51,21 @@ class JudgeNode:
         while not rospy.is_shutdown():
             self.time_now = rospy.get_time()
 
-            if self.start_check and abs(self.pose[0]-self.half_pose["x"]) <= 0.2 \
-                    and abs(self.pose[1]-self.half_pose["y"]) < self.track_width:
+            if self.start_check == True and self.half_check == False \
+                    and abs(self.pose[0]-self.half_pose["x"]) <= 0.2 \
+                    and abs(self.pose[1]-self.half_pose["y"]) < self.track_width*0.8:
                 self.half_check = True
                 print("[INFO]: Halfway through the track !")
 
             if self.half_check == True and abs(self.pose[0]-self.init_pose["x"]) <= 0.2 \
-                    and abs(self.pose[1]-self.init_pose["y"]) < self.track_width:
+                    and abs(self.pose[1]-self.init_pose["y"]) < self.track_width*0.8:
                 self.finish_time = rospy.get_time()
                 self.finish_seconds = float(self.finish_time-self.start_time)
                 print("[INFO]: Finish game !")
                 return
 
             if (self.time_now-self.start_time) > self.max_seconds:
+                self.timeout = True
                 self.finish_seconds = float(self.max_seconds)
                 print("[INFO]: Exceed max seconds !")
                 return
@@ -69,20 +74,21 @@ class JudgeNode:
     def JudgeCallback(self, msg: Odometry):
         new_pose = [msg.pose.pose.position.x, msg.pose.pose.position.y]
         self.pose = new_pose
-        if self.pose_first == None:
-            self.pose_first = new_pose
-        if math.sqrt((self.pose[0]-self.pose_first[0])**2+(self.pose[1]-self.pose_first[0])**2) > 0.2:
-            self.start_check = True
-            print("[INFO]: Robot starts !")
+        if self.wait_flag == False:
+            if self.pose_first == None:
+                self.pose_first = new_pose
+            if self.start_check == False and math.sqrt((self.pose[0]-self.pose_first[0])**2+(self.pose[1]-self.pose_first[0])**2) > 0.2:
+                self.start_check = True
+                print("[INFO]: Robot starts !")
 
     def kill_ros_process(self):
         os.system(dir_path+"/kill.sh")
 
 
 class UserTask:
-    def __init__(self, workspace_dir_path: str):
+    def __init__(self, workspace_dir_path: str, race_id: int):
         self.workspace_dir_path: str = workspace_dir_path
-        self.user_cmd: str = config_data["user_cmd"]
+        self.user_cmd: str = config_data["user_cmd"][race_id]
 
         self.killed = False
         self.error_return = None
