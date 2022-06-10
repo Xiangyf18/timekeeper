@@ -51,15 +51,18 @@ class JudgeNode:
             if self.start_check and abs(self.pose[0]-self.half_pose["x"]) <= 0.2 \
                     and abs(self.pose[1]-self.half_pose["y"]) < self.track_width:
                 self.half_check = True
+                print("[INFO]: Halfway through the track !")
 
             if self.half_check == True and abs(self.pose[0]-self.init_pose["x"]) <= 0.2 \
                     and abs(self.pose[1]-self.init_pose["y"]) < self.track_width:
                 self.finish_time = rospy.get_time()
                 self.finish_seconds = float(self.finish_time-self.start_time)
+                print("[INFO]: Finish game !")
                 return
 
             if (self.time_now-self.start_time) > self.max_seconds:
                 self.finish_seconds = float(self.max_seconds)
+                print("[INFO]: Exceed max seconds !")
                 return
             self.rate.sleep()
 
@@ -70,6 +73,7 @@ class JudgeNode:
             self.pose_first = new_pose
         if math.sqrt((self.pose[0]-self.pose_first[0])**2+(self.pose[1]-self.pose_first[0])**2) > 0.2:
             self.start_check = True
+            print("[INFO]: Robot starts !")
 
     def kill_ros_process(self):
         os.system(dir_path+"/kill.sh")
