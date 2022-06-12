@@ -77,8 +77,9 @@ class JudgeNode:
         if self.wait_flag == False:
             if self.pose_first == None:
                 self.pose_first = new_pose
-            if self.start_check == False and math.sqrt((self.pose[0]-self.pose_first[0])**2+(self.pose[1]-self.pose_first[0])**2) > 0.2:
+            if self.start_check == False and math.sqrt((self.pose[0]-self.pose_first[0])**2+(self.pose[1]-self.pose_first[1])**2) > 0.15:
                 self.start_check = True
+                self.start_time = rospy.get_time()
                 print("[INFO]: Robot starts !")
 
     def kill_ros_process(self):
