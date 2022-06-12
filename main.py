@@ -4,6 +4,7 @@ from timekeeper import JudgeNode, UserTask, SimulatorTask
 import time
 import rospy
 import uvicorn
+import threading
 from fastapi import FastAPI
 from fastapi import Request
 
@@ -55,18 +56,22 @@ def main(user_workspace_dir: str, trace_id: int = 0):
 
 
 app = FastAPI()
+main_lock = threading.Lock()
 
 
 @app.post("/api/timekeeper")
 async def home(request: Request):
     data = await request.json()
-    result = main(user_workspace_dir=data["actualPath"],
-                  trace_id=int(data["InterfacePathParams"]["type"]-1))
-    msg = {
-        "msg": "success" if result["error"] == False else str(result["error_description"]),
-        "code": -1 if result["error"] == True else (0 if result["timeout"] == False else 666),
-        "castTime": int(result["seconds"])
-    }
+    with main_lock:
+        result = main(user_workspace_dir=data["actualPath"],
+                      trace_id=int(data["InterfacePathParams"]["type"]-1))
+        msg = {
+            "msg": "timeout" if result["timeout"] == True else
+            ("success" if result["error"] == False else str(result["error_description"])),
+
+            "code": -1 if result["error"] == True else (0 if result["timeout"] == False else -1),
+            "castTime": int(result["seconds"])
+        }
     return msg
 
 
