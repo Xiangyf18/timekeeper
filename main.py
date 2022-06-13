@@ -11,8 +11,8 @@ from fastapi import Request
 
 def main(user_workspace_dir: str, trace_id: int = 0):
 
-    result: dict = {"seconds": 0.0,
-                    "error": False,
+    result: dict = {"seconds": -1.0,
+                    "error": True,
                     "timeout": False,
                     "error_description": ""}
 
@@ -36,6 +36,7 @@ def main(user_workspace_dir: str, trace_id: int = 0):
     try:
         while not rospy.is_shutdown():
             if judge_task.finish_seconds != None:
+                result["error"] = False
                 result["seconds"] = judge_task.finish_seconds
                 result["timeout"] = judge_task.timeout
                 break
@@ -72,6 +73,7 @@ async def home(request: Request):
             "code": -1 if result["error"] == True else (0 if result["timeout"] == False else -1),
             "castTime": int(result["seconds"])
         }
+        time.sleep(1)
     return msg
 
 
