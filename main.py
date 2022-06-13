@@ -8,6 +8,9 @@ import threading
 from fastapi import FastAPI
 from fastapi import Request
 
+app = FastAPI()
+main_lock = threading.Lock()
+
 
 def main(user_workspace_dir: str, trace_id: int = 0):
 
@@ -54,14 +57,12 @@ def main(user_workspace_dir: str, trace_id: int = 0):
         return result
 
 
-app = FastAPI()
-
-
 @app.post("/api/timekeeper")
 async def home(request: Request):
     data = await request.json()
-    result = main(user_workspace_dir=data["actualPath"],
-                  trace_id=int(data["InterfacePathParams"]["type"]-1))
+    with main_lock:
+        result = main(user_workspace_dir=data["actualPath"],
+                      trace_id=int(data["InterfacePathParams"]["type"]-1))
     msg = {
         "msg": "timeout" if result["timeout"] == True else
         ("success" if result["error"] == False else str(result["error_description"])),
