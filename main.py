@@ -26,7 +26,6 @@ def main(user_workspace_dir: str, trace_id: int = 0):
         result["error"] = True
         result["error_description"] += sim_task.error_return if sim_task.error_return != None else ""
         judge_task.kill_ros_process()
-        print(result)
         return result
 
     judge_task.init_task()
@@ -52,7 +51,6 @@ def main(user_workspace_dir: str, trace_id: int = 0):
 
     finally:
         judge_task.kill_ros_process()
-        print(result)
         return result
 
 
@@ -74,6 +72,7 @@ async def home(request: Request):
             "castTime": int(result["seconds"])
         }
         time.sleep(1)
+    print(msg)
     return msg
 
 
