@@ -1,8 +1,10 @@
 #!/usr/bin/python3
 # -*- coding:utf-8 -*-
 import time
-import uvicorn
 import threading
+from multiprocessing import Process, Queue
+
+import uvicorn
 from fastapi import FastAPI
 from fastapi import Request
 
@@ -10,7 +12,7 @@ app = FastAPI()
 main_lock = threading.Lock()
 
 
-def main(user_workspace_dir: str, trace_id: int = 0):
+def main(user_workspace_dir: str, trace_id: int, res_queue: Queue):
     import rospy
     from timekeeper import JudgeNode, UserTask, SimulatorTask
     result: dict = {"seconds": 0.0,
@@ -28,7 +30,8 @@ def main(user_workspace_dir: str, trace_id: int = 0):
         result["error"] = True
         result["error_description"] += sim_task.error_return if sim_task.error_return != None else ""
         judge_task.kill_ros_process()
-        return result
+        res_queue.put(result)
+        return
 
     judge_task.init_task()
     user_task = UserTask(user_workspace_dir, trace_id)
@@ -53,15 +56,23 @@ def main(user_workspace_dir: str, trace_id: int = 0):
 
     finally:
         judge_task.kill_ros_process()
-        return result
+        res_queue.put(result)
+        return
 
 
 @app.post("/api/timekeeper")
 async def home(request: Request):
     data = await request.json()
     with main_lock:
-        result = main(user_workspace_dir=data["actualPath"],
-                      trace_id=int(data["InterfacePathParams"]["type"]-1))
+        res_queue: Queue = Queue(1)
+        main_process: Process = Process(target=main,
+                                        args=(data["actualPath"],
+                                              int(data["InterfacePathParams"]["type"]-1),
+                                              res_queue),
+                                        daemon=True)
+        main_process.start()
+        result = res_queue.get()
+        main_process.join()
     msg = {
         "msg": "timeout" if result["timeout"] == True else
         ("success" if result["error"] == False else str(result["error_description"])),
