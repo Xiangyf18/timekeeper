@@ -116,6 +116,10 @@ class UserTask:
             cmd = "cd "+self.workspace_dir_path+" && rm -rf build/ devel/ && catkin_make"
             os.system(cmd)
 
+        # add operation permission
+        cmd = "cd "+self.workspace_dir_path+" && chmod -R +x src/"
+        os.system(cmd)
+
         # exec user codes
         exec_cmd = f"source {self.workspace_dir_path}/devel/setup.bash && {self.user_cmd}"
         self.ros_driver_process = subprocess.Popen(["/bin/bash", "-c", exec_cmd],

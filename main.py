@@ -11,7 +11,7 @@ from fastapi import Request
 
 def main(user_workspace_dir: str, trace_id: int = 0):
 
-    result: dict = {"seconds": -1.0,
+    result: dict = {"seconds": 0.0,
                     "error": True,
                     "timeout": False,
                     "error_description": ""}
@@ -22,7 +22,7 @@ def main(user_workspace_dir: str, trace_id: int = 0):
     judge_task = JudgeNode(trace_id)
     # if init simulator error ,return at once
     if sim_task.error_return:
-        result["seconds"] = -1.0
+        result["seconds"] = 0.0
         result["error"] = True
         result["error_description"] += sim_task.error_return if sim_task.error_return != None else ""
         judge_task.kill_ros_process()
@@ -41,7 +41,7 @@ def main(user_workspace_dir: str, trace_id: int = 0):
                 break
 
             if sim_task.error_return or user_task.error_return:
-                result["seconds"] = -1.0
+                result["seconds"] = 0.0
                 result["error"] = True
                 result["error_description"] += sim_task.error_return if sim_task.error_return != None else ""
                 result["error_description"] += user_task.error_return if user_task.error_return != None else ""
