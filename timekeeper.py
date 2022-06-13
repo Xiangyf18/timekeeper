@@ -101,7 +101,7 @@ class UserTask:
                 self.error_return = "UserTask process unexpectedly exit with data:: File should be a zip type!"
                 return
             root_dir = os.path.expanduser('~')+"/user_ws"
-            cmd = "rm -rf "+root_dir+" && unzip -d " + root_dir+" "+self.workspace_dir_path
+            cmd = "rm -rf "+root_dir+" && unzip -d " + root_dir+" "+self.workspace_dir_path+"  1>/dev/null"
             os.system(cmd)
 
             # get real user workspace
