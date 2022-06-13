@@ -10,6 +10,7 @@ from fastapi import Request
 
 app = FastAPI()
 main_lock = threading.Lock()
+queue: Queue = Queue(1)
 
 
 def main(user_workspace_dir: str, trace_id: int, res_queue: Queue):
@@ -64,14 +65,13 @@ def main(user_workspace_dir: str, trace_id: int, res_queue: Queue):
 async def home(request: Request):
     data = await request.json()
     with main_lock:
-        res_queue: Queue = Queue(1)
         main_process: Process = Process(target=main,
                                         args=(data["actualPath"],
                                               int(data["InterfacePathParams"]["type"]-1),
-                                              res_queue),
+                                              queue),
                                         daemon=True)
         main_process.start()
-        result = res_queue.get()
+        result = queue.get()
         main_process.join()
     msg = {
         "msg": "timeout" if result["timeout"] == True else
