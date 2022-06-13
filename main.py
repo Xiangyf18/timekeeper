@@ -1,8 +1,6 @@
 #!/usr/bin/python3
 # -*- coding:utf-8 -*-
-from timekeeper import JudgeNode, UserTask, SimulatorTask
 import time
-import rospy
 import uvicorn
 import threading
 from fastapi import FastAPI
@@ -13,7 +11,8 @@ main_lock = threading.Lock()
 
 
 def main(user_workspace_dir: str, trace_id: int = 0):
-
+    import rospy
+    from timekeeper import JudgeNode, UserTask, SimulatorTask
     result: dict = {"seconds": 0.0,
                     "error": True,
                     "timeout": False,
