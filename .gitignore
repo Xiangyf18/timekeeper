@@ -4,4 +4,3 @@ log
 *.egg-info
 devel
 build
-.DS_Store
