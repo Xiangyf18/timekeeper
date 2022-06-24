@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 # -*- coding:utf-8 -*-
 
-from cv2 import exp
 import rospy
 from geometry_msgs.msg import Twist
 from geometry_msgs.msg import TwistStamped
