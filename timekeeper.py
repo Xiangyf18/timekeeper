@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 # -*- coding:utf-8 -*-
 
+from cv2 import exp
 import rospy
 from geometry_msgs.msg import Twist
 from geometry_msgs.msg import TwistStamped
@@ -105,9 +106,12 @@ class UserTask:
             os.system(cmd)
 
             # get real user workspace
-            dirs = os.listdir(root_dir)
-            if len(dirs) != 1:
-                self.error_return = "UserTask process unexpectedly exit with data:: After unzip, workspace format is wrong!"
+            try:
+                dirs = os.listdir(root_dir)
+                if len(dirs) != 1:
+                    raise Exception("After unzip, workspace format is wrong!")
+            except Exception as e:
+                self.error_return = str(f"UserTask process unexpectedly exit with data:: {e} ")
                 return
             self.workspace_dir_path = root_dir+"/"+str(dirs[0])
 

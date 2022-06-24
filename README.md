@@ -64,4 +64,5 @@ python3 main_web.py
 - python相关库安装如下：
 ```
 python3 -m pip install rospkg catkin_tools fastapi[all]
+python3 -m pip install --upgrade pyyaml
 ```
