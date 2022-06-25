@@ -3,6 +3,7 @@
 import time
 import threading
 from multiprocessing import Queue, Process
+from datetime import datetime
 
 main_lock = threading.Lock()
 queue: Queue = Queue(1)
@@ -56,7 +57,7 @@ def main(user_workspace_dir: str, trace_id: int, res_queue: Queue):
         return
 
 
-def interface_func(track_id: int, user_workspace_dir: str)->dict:
+def interface_func(track_id: int, user_workspace_dir: str) -> dict:
     with main_lock:
         main_process: Process = Process(target=main,
                                         args=(user_workspace_dir,
@@ -74,5 +75,5 @@ def interface_func(track_id: int, user_workspace_dir: str)->dict:
         "castTime": int(result["seconds"])
     }
     time.sleep(1)
-    print(msg)
+    print("["+str(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))+"]: ", msg)
     return msg
