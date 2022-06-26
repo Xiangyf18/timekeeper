@@ -22,7 +22,7 @@ with open(str(config_url), mode='r', encoding='utf-8') as f:
 class JudgeNode:
     def __init__(self, race_id):
         # static data
-        self.max_seconds = config_data["max_seconds"]
+        self.max_seconds = config_data["racetrack"][race_id]["max_seconds"]
         self.init_pose = config_data["racetrack"][race_id]["init_pose"]
         self.half_pose = config_data["racetrack"][race_id]["half_pose"]
         self.track_width = config_data["racetrack"][race_id]["track_width"]
