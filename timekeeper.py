@@ -22,10 +22,17 @@ with open(str(config_url), mode='r', encoding='utf-8') as f:
 class JudgeNode:
     def __init__(self, race_id):
         # static data
+        self.race_id = race_id
         self.max_seconds = config_data["racetrack"][race_id]["max_seconds"]
         self.init_pose = config_data["racetrack"][race_id]["init_pose"]
         self.half_pose = config_data["racetrack"][race_id]["half_pose"]
         self.track_width = config_data["racetrack"][race_id]["track_width"]
+
+        if race_id == 2:
+            self.check_poses = []
+            self.check_poses[0] = config_data["racetrack"][race_id]["check_pose_list"]
+            self.check_poses[1] = config_data["racetrack"][race_id]["select_R_pose_list"]
+            self.check_poses[2] = config_data["racetrack"][race_id]["select_L_pose_list"]
 
     def init_task(self):
         self.wait_flag = True  # wait to start timekeeper
@@ -37,6 +44,13 @@ class JudgeNode:
         self.half_check = False
         self.start_check = False
         self.finish_seconds = None
+        self.race_2_check = True
+
+        if self.race_id == 2:
+            # need to reach essential postion before finish game
+            self.check_poses_index = [0, 0, 0]
+            self.check_poses_flag = [False, False, False]
+            self.race_2_check = False
 
         # for ros init
         rospy.init_node('judge_node_', anonymous=True)
@@ -57,7 +71,11 @@ class JudgeNode:
                 self.half_check = True
                 print("[INFO]: Halfway through the track !")
 
-            if self.half_check == True and abs(self.pose[0]-self.init_pose["x"]) <= 0.2 \
+            # only for race_id==2
+            if self.start_check == True and self.race_2_check == False:
+                self._check_positions()
+
+            if self.half_check == True and self.race_2_check == True and abs(self.pose[0]-self.init_pose["x"]) <= 0.2 \
                     and abs(self.pose[1]-self.init_pose["y"]) < self.track_width*0.8:
                 self.finish_time = rospy.get_time()
                 self.finish_seconds = float(self.finish_time-self.start_time)
@@ -81,6 +99,23 @@ class JudgeNode:
                 self.start_check = True
                 self.start_time = rospy.get_time()
                 print("[INFO]: Robot starts !")
+
+    def _check_positions(self):
+        # only process it  when  self.race_id ==2
+        if self.race_2_check == True:
+            return
+
+        for i in range(3):
+            if self.check_poses_index[i] < len(self.check_poses[i]):
+                position_next = self.check_poses[i][self.check_poses_index[i]]
+                if math.sqrt((self.pose[0]-position_next[0])**2+(self.pose[1]-position_next[1])**2) <= position_next[2]*1.25:
+                    # means robots has reached this position
+                    self.check_poses_index[i] += 1
+            else:
+                self.check_poses_flag[i] = True
+        if self.check_poses_flag[0] == True and \
+                (self.check_poses_flag[1] == True or self.check_poses_flag[2] == True):
+            self.race_2_check = True
 
     def kill_ros_process(self):
         os.system(dir_path+"/kill.sh")
