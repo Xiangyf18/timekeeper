@@ -29,7 +29,7 @@ class JudgeNode:
         self.track_width = config_data["racetrack"][race_id]["track_width"]
 
         if race_id == 2:
-            self.check_poses = []
+            self.check_poses = [[], [], []]
             self.check_poses[0] = config_data["racetrack"][race_id]["check_pose_list"]
             self.check_poses[1] = config_data["racetrack"][race_id]["select_R_pose_list"]
             self.check_poses[2] = config_data["racetrack"][race_id]["select_L_pose_list"]
