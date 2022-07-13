@@ -110,6 +110,7 @@ class JudgeNode:
                 position_next = self.check_poses[i][self.check_poses_index[i]]
                 if math.sqrt((self.pose[0]-position_next[0])**2+(self.pose[1]-position_next[1])**2) <= position_next[2]*1.25:
                     # means robots has reached this position
+                    print(f"[INFO]: Check position ID: {i}-{self.check_poses_index[i]} !")
                     self.check_poses_index[i] += 1
             else:
                 self.check_poses_flag[i] = True
